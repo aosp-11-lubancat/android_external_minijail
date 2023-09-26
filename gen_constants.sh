@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2015 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -27,6 +27,11 @@ if [ $# -eq 2 ]; then
 fi
 OUTFILE="$1"
 
+grep=grep
+if [ "$(uname)" == "Darwin" ]; then
+  grep=/usr/bin/grep
+fi
+
 if [ ${GEN_DEPS} -eq 1 ]; then
   # Generate a dependency file which helps the build tool to see when it
   # should regenerate ${OUTFILE}.
@@ -52,8 +57,8 @@ cat <<-EOF > "${OUTFILE}"
 #include "libconstants.h"
 const struct constant_entry constant_table[] = {
 $(${BUILD} | \
-  grep -E '^#define [[:upper:]][[:upper:]0-9_]*(\s)+[[:alnum:]_]' | \
-  grep -Ev '(SIGRTMAX|SIGRTMIN|SIG_|NULL)' | \
+  ${grep} -E '^#define [[:upper:]][[:upper:]0-9_]*(\s)+[[:alnum:]_]' | \
+  ${grep} -Ev '(SIGRTMAX|SIGRTMIN|SIG_|NULL)' | \
   sort -u | \
   sed -Ee "${SED_MULTILINE}")
   { NULL, 0 },
